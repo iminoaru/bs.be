@@ -14,26 +14,9 @@ PORT=3000
 **Request Body**
 ```json
 {
-  "email": "mcfly@hillvalley.edu",
-  "phoneNumber": "123456"
+  "email": "<text>",
+  "phoneNumber": "<number>"
 }
 ```
 
-**Response**
-```json
-{
-  "contact": {
-    "primaryContatctId": 1,
-    "emails": [
-      "lorraine@hillvalley.edu",
-      "mcfly@hillvalley.edu"
-    ],
-    "phoneNumbers": [
-      "123456"
-    ],
-    "secondaryContactIds": [
-      23
-    ]
-  }
-}
-```
+
