@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitespeed Identity Reconciliation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #111827;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.875rem;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            overflow-x: auto;
+            display: none;
+        }
+
+        .result pre {
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        .error {
+            color: #dc2626;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Identity Reconciliation API</h1>
+        <p style="text-align: center; color: #6b7280; font-size: 0.875rem; margin-bottom: 1.5rem;">
+            Paste your JSON payload below to test the <code>/identify</code> endpoint.
+        </p>
+
+        <div class="form-group">
+            <label for="jsonInput">Request Payload (JSON)</label>
+            <textarea id="jsonInput" placeholder='{
+  "email": "mcfly@hillvalley.edu",
+  "phoneNumber": "123456"
+}'></textarea>
+            <div id="jsonError" class="error">Invalid JSON format</div>
+        </div>
+
+        <button id="submitBtn">Identify Contact</button>
+
+        <div id="resultContainer" class="result">
+            <label>Response:</label>
+            <pre id="resultOutput"></pre>
+        </div>
+    </div>
+
+    <script>
+        const jsonInput = document.getElementById('jsonInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultOutput = document.getElementById('resultOutput');
+        const jsonError = document.getElementById('jsonError');
+
+        submitBtn.addEventListener('click', async () => {
+            jsonError.style.display = 'none';
+            resultContainer.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
+            let payload;
+            try {
+                const val = jsonInput.value.trim() || '{}';
+                payload = JSON.parse(val);
+            } catch (e) {
+                jsonError.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Identify Contact';
+                return;
+            }
+
+            try {
+                const response = await fetch('/identify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                resultOutput.textContent = JSON.stringify(data, null, 2);
+
+                if (!response.ok) {
+                    resultOutput.style.color = '#dc2626';
+                } else {
+                    resultOutput.style.color = '#111827';
+                }
+
+                resultContainer.style.display = 'block';
+            } catch (error) {
+                resultOutput.textContent = 'Error connecting to server. Is the API running?';
+                resultOutput.style.color = '#dc2626';
+                resultContainer.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Identify Contact';
+            }
+        });
+
+        jsonInput.addEventListener('keydown', function (e) {
+            if (e.key == 'Tab') {
+                e.preventDefault();
+                var start = this.selectionStart;
+                var end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 2;
+            }
+        });
+    </script>
+</body>
+
+</html>
