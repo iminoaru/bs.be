@@ -1,23 +1,15 @@
 # Bitespeed Identity Reconciliation
 
-A backend service for linking user contacts across multiple purchases.
+Node.js, Express, TypeScript, Supabase (PostgreSQL)
 
-## Tech Stack
-* Node.js
-* Express
-* TypeScript
-* Supabase (PostgreSQL)
+## ENV Variables
+```
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+PORT=3000
+```
 
-## Database Schema
-The service interacts with a `contacts` table tracking `phone_number`, `email`, `linked_id`, and `link_precedence` (primary or secondary).
-
-## API Endpoints
-
-### POST /identify
-Consolidates contact identities based on matching email or phone numbers.
-
-**Headers**
-* `Content-Type: application/json`
+## POST /identify
 
 **Request Body**
 ```json
@@ -27,7 +19,7 @@ Consolidates contact identities based on matching email or phone numbers.
 }
 ```
 
-**Success Response** (200 OK)
+**Response**
 ```json
 {
   "contact": {
@@ -45,26 +37,3 @@ Consolidates contact identities based on matching email or phone numbers.
   }
 }
 ```
-
-## Running Locally
-
-1. Install dependencies
-```bash
-npm install
-```
-
-2. Setup Environment Variables
-Create a `.env` file based on `.env.example` with your Supabase credentials.
-```
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
-PORT=3000
-```
-
-3. Start the server
-```bash
-npm run dev
-```
-
-4. Testing the API
-Open `http://localhost:3000` in the browser to access the minimal UI, or use cURL/Postman against the `/identify` endpoint.
